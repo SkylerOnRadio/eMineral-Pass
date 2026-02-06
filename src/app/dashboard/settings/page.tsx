@@ -39,6 +39,7 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     fullName: user?.user_metadata?.full_name || "",
     email: user?.email || "",
+    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -87,7 +88,7 @@ export default function SettingsPage() {
   };
 
   const handleChangePassword = async () => {
-    if (!formData.newPassword || !formData.confirmPassword) {
+    if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
       setNotification({
         type: "error",
         message: "Please fill in all password fields",
@@ -111,8 +112,23 @@ export default function SettingsPage() {
       return;
     }
 
+    if (!user?.email) {
+      setNotification({
+        type: "error",
+        message: "Missing user email. Please sign in again.",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: formData.currentPassword,
+      });
+
+      if (reauthError) throw reauthError;
+
       const { error } = await supabase.auth.updateUser({
         password: formData.newPassword,
       });
@@ -123,13 +139,18 @@ export default function SettingsPage() {
         type: "success",
         message: "Password changed successfully",
       });
-      setFormData({ ...formData, newPassword: "", confirmPassword: "" });
+      setFormData({
+        ...formData,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
       setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       console.error("Error changing password:", error);
       setNotification({
         type: "error",
-        message: "Failed to change password",
+        message: "Failed to change password. Check current password.",
       });
     } finally {
       setLoading(false);
@@ -366,6 +387,25 @@ export default function SettingsPage() {
                 <div>
                   <h2 className="text-xl font-bold mb-4">Change Password</h2>
                   <div className="space-y-4">
+                    <div>
+                      <label
+                        className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}
+                      >
+                        Current Password
+                      </label>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={formData.currentPassword}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            currentPassword: e.target.value,
+                          })
+                        }
+                        className={`w-full px-4 py-2 rounded-lg border transition-colors ${isDark ? "bg-slate-800 border-slate-700 focus:border-cyan-500" : "bg-white border-slate-300 focus:border-cyan-500"} outline-none focus:ring-2 focus:ring-cyan-500/20`}
+                      />
+                    </div>
+
                     <div>
                       <label
                         className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}

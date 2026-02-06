@@ -34,6 +34,8 @@ export default function HostDashboard() {
   const [filterStatus, setFilterStatus] = useState<
     "All" | "active" | "expired" | "archived"
   >("All");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -75,10 +77,25 @@ export default function HostDashboard() {
   }, [user]);
 
   // Filter records based on selected status
-  const filteredRecords =
-    filterStatus === "All"
-      ? records
-      : records.filter((r) => r.status === filterStatus);
+  const filteredRecords = records.filter((record) => {
+    if (filterStatus !== "All" && record.status !== filterStatus) {
+      return false;
+    }
+
+    const createdAt = new Date(record.created_at);
+
+    if (dateFrom) {
+      const fromDate = new Date(`${dateFrom}T00:00:00`);
+      if (createdAt < fromDate) return false;
+    }
+
+    if (dateTo) {
+      const toDate = new Date(`${dateTo}T23:59:59.999`);
+      if (createdAt > toDate) return false;
+    }
+
+    return true;
+  });
 
   // Calculate stats
   const activeRecords = records.filter((r) => r.status === "active").length;
@@ -190,6 +207,47 @@ export default function HostDashboard() {
             >
               View All <Eye className="w-4 h-4" />
             </Link>
+          </div>
+
+          {/* Date Range Filter */}
+          <div
+            className={`mb-4 rounded-lg border p-4 flex flex-col gap-3 sm:flex-row sm:items-end ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}
+          >
+            <div className="flex-1">
+              <label
+                className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}
+              >
+                From
+              </label>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className={`w-full px-3 py-2 rounded-lg border ${isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-slate-300"}`}
+              />
+            </div>
+            <div className="flex-1">
+              <label
+                className={`block text-xs font-semibold mb-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}
+              >
+                To
+              </label>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className={`w-full px-3 py-2 rounded-lg border ${isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-slate-300"}`}
+              />
+            </div>
+            <button
+              onClick={() => {
+                setDateFrom("");
+                setDateTo("");
+              }}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${isDark ? "bg-slate-800 text-slate-200 hover:bg-slate-700" : "bg-white text-slate-700 hover:bg-slate-100"}`}
+            >
+              Clear Dates
+            </button>
           </div>
 
           {/* Filter Buttons */}

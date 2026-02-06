@@ -2,12 +2,14 @@
 
 import React, { memo, useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { Menu, X, Sun, Moon, LogOut } from 'lucide-react'
 
 function DashboardNavbarComponent() {
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
   const { user, signOut, isAuthenticated } = useAuth()
   const { effectiveTheme, toggleTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -24,6 +26,7 @@ function DashboardNavbarComponent() {
   const handleSignOut = async () => {
     await signOut()
     setMobileMenuOpen(false)
+    router.push('/')
   }
 
   return (
