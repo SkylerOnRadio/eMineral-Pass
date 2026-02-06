@@ -171,6 +171,7 @@ export async function createRecord({
     };
   }
 }
+
 /**
  * Get single record for authenticated user
  */
