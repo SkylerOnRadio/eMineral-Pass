@@ -13,6 +13,7 @@ import {
   Calendar,
   MapPin,
   Filter,
+  Settings,
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
@@ -36,6 +37,11 @@ export default function UserDashboard() {
   >("All");
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const isDark = effectiveTheme === "dark";
 
@@ -100,8 +106,14 @@ export default function UserDashboard() {
   ];
 
   const handleDelete = async (recordId: string) => {
-    if (!confirm("Are you sure you want to delete this pass?")) return;
+    if (
+      !confirm(
+        "Are you sure you want to delete this pass? This action cannot be undone.",
+      )
+    )
+      return;
 
+    setDeletingId(recordId);
     try {
       const { error } = await supabase
         .from("records")
@@ -112,17 +124,56 @@ export default function UserDashboard() {
 
       // Remove from local state
       setRecords(records.filter((r) => r.id !== recordId));
-      alert("Pass deleted successfully");
+
+      // Show success notification
+      setNotification({
+        type: "success",
+        message: "Pass deleted successfully",
+      });
+
+      // Auto-hide notification after 3 seconds
+      setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       console.error("Error deleting record:", error);
-      alert("Failed to delete pass");
+
+      // Show error notification
+      setNotification({
+        type: "error",
+        message: "Failed to delete pass. Please try again.",
+      });
+
+      // Auto-hide notification after 5 seconds
+      setTimeout(() => setNotification(null), 5000);
+    } finally {
+      setDeletingId(null);
     }
   };
 
   return (
     <div
-      className={`min-h-screen transition-colors ${isDark ? "bg-slate-950 text-white" : "bg-white text-slate-900"}`}
+      className={`min-h-screen pt-20 transition-colors ${isDark ? "bg-slate-950 text-white" : "bg-white text-slate-900"}`}
     >
+      {/* Notification Toast */}
+      {notification && (
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          className={`fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg border-2 ${
+            notification.type === "success"
+              ? "bg-green-50 dark:bg-green-950/90 border-green-500 text-green-700 dark:text-green-300"
+              : "bg-red-50 dark:bg-red-950/90 border-red-500 text-red-700 dark:text-red-300"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">
+              {notification.type === "success" ? "✓" : "⚠"}
+            </span>
+            <span className="font-semibold">{notification.message}</span>
+          </div>
+        </motion.div>
+      )}
+
       {/* Header */}
       <div
         className={`${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"} border-b transition-colors`}
@@ -137,13 +188,22 @@ export default function UserDashboard() {
                 Manage your mineral transportation passes
               </p>
             </div>
-            <Link
-              href="/form"
-              className="flex-1 sm:flex-none px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg transition-all w-full sm:w-auto"
-            >
-              <Plus className="w-5 h-5" />
-              <span>New Pass</span>
-            </Link>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Link
+                href="/form"
+                className="flex-1 sm:flex-none px-4 py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                <span>New Pass</span>
+              </Link>
+              <Link
+                href="/dashboard/settings"
+                className={`flex-1 sm:flex-none px-4 py-3 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all ${isDark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-100 hover:bg-slate-200"}`}
+              >
+                <Settings className="w-5 h-5" />
+                <span className="hidden sm:inline">Settings</span>
+              </Link>
+            </div>
           </div>
 
           {/* Stats */}
@@ -164,7 +224,7 @@ export default function UserDashboard() {
                       {stat.value}
                     </p>
                   </div>
-                  <div className="text-cyan-500 flex-shrink-0">{stat.icon}</div>
+                  <div className="text-cyan-500 shrink-0">{stat.icon}</div>
                 </div>
               </div>
             ))}
@@ -225,7 +285,7 @@ export default function UserDashboard() {
             ) : (
               <Link
                 href="/form"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white hover:shadow-lg"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white hover:shadow-lg"
               >
                 <Plus className="w-5 h-5" />
                 Create New Pass
@@ -351,10 +411,23 @@ export default function UserDashboard() {
                       )}
                       <button
                         onClick={() => handleDelete(record.id)}
-                        className={`p-2 rounded-lg ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"} transition-colors`}
-                        title="Delete"
+                        disabled={deletingId === record.id}
+                        className={`p-2 rounded-lg transition-all ${
+                          deletingId === record.id
+                            ? "opacity-50 cursor-not-allowed"
+                            : isDark
+                              ? "hover:bg-red-900/30"
+                              : "hover:bg-red-100"
+                        }`}
+                        title={
+                          deletingId === record.id ? "Deleting..." : "Delete"
+                        }
                       >
-                        <Trash2 className="w-5 h-5 text-slate-400 hover:text-red-400" />
+                        {deletingId === record.id ? (
+                          <div className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Trash2 className="w-5 h-5 text-slate-400 hover:text-red-400" />
+                        )}
                       </button>
                     </div>
                   </div>

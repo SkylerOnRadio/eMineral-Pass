@@ -2,7 +2,11 @@
 
 import { supabaseAdmin } from "@/lib/supabase";
 import { generatePublicToken } from "@/lib/utils";
-import { generateAndStoreQRCode } from "@/lib/qr-generator";
+import {
+  generateAndStoreQRCode,
+  generateQRCodeDataUrl,
+  getPublicRecordUrl,
+} from "@/lib/qr-generator";
 import { generateAndStorePDF } from "@/lib/pdf-generator";
 import { FormFieldDefinition, FormSubmissionData, Record } from "@/types";
 import { v4 as uuidv4 } from "uuid";
@@ -60,8 +64,8 @@ export async function createRecord({
         id: recordId,
         user_id: userId,
         form_data: completeFormData as any,
-        generated_on: generatedOn.toISOString(), // Store actual date for filtering
-        valid_upto: validUpto.toISOString(), // Store actual date for expiry checks
+        generated_on: generatedOn.toISOString(),
+        valid_upto: validUpto.toISOString(),
         public_token: publicToken,
         status: "active",
       } as any)
@@ -74,29 +78,52 @@ export async function createRecord({
 
     // 2. Generate and store QR code
     let qrCodeUrl = null;
+    let qrCodeDataUrl = null;
     try {
+      console.log("[QR] Starting QR code generation for record:", recordId);
+      const publicUrl = getPublicRecordUrl(publicToken);
+      console.log("[QR] Public URL:", publicUrl);
+      qrCodeDataUrl = await generateQRCodeDataUrl(publicUrl);
+      console.log("[QR] QR data URL generated, length:", qrCodeDataUrl?.length);
+
       qrCodeUrl = await generateAndStoreQRCode(recordId, userId, publicToken);
+      console.log("[QR] QR code stored successfully:", qrCodeUrl);
     } catch (qrError) {
-      console.error("QR generation failed:", qrError);
-      // Don't fail the entire operation if QR generation fails
+      console.error("[QR] ❌ QR generation failed:", qrError);
+      console.error(
+        "[QR] Error details:",
+        qrError instanceof Error ? qrError.message : qrError,
+      );
     }
 
     // 3. Generate and store PDF
     let pdfUrl = null;
     try {
+      const stringFormData: { [key: string]: string } = {};
+      for (const [key, value] of Object.entries(completeFormData)) {
+        stringFormData[key] =
+          value === null || value === undefined ? "" : String(value);
+      }
+
+      console.log("[PDF] Starting PDF generation for record:", recordId);
+      console.log("[PDF] Has QR data URL:", !!qrCodeDataUrl);
       pdfUrl = await generateAndStorePDF(
         recordId,
         userId,
-        completeFormData,
+        stringFormData,
         generatedOn,
         validUpto,
         {
-          qrCodeDataUrl: qrCodeUrl || undefined,
+          qrCodeDataUrl: qrCodeDataUrl || undefined,
         },
       );
+      console.log("[PDF] ✓ PDF generated successfully:", pdfUrl);
     } catch (pdfError) {
-      console.error("PDF generation failed:", pdfError);
-      // Don't fail the entire operation if PDF generation fails
+      console.error("[PDF] ❌ PDF generation failed:", pdfError);
+      console.error(
+        "[PDF] Error stack:",
+        pdfError instanceof Error ? pdfError.stack : pdfError,
+      );
     }
 
     // 4. Update record with QR and PDF URLs
@@ -144,7 +171,6 @@ export async function createRecord({
     };
   }
 }
-
 /**
  * Get single record for authenticated user
  */

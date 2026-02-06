@@ -120,7 +120,7 @@ export default function HostDashboard() {
 
   return (
     <div
-      className={`min-h-screen transition-colors ${isDark ? "bg-slate-950 text-white" : "bg-white text-slate-900"}`}
+      className={`min-h-screen pt-20 transition-colors ${isDark ? "bg-slate-950 text-white" : "bg-white text-slate-900"}`}
     >
       {/* Header */}
       <div
@@ -140,7 +140,7 @@ export default function HostDashboard() {
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Link
-                href="/settings"
+                href="/dashboard/settings"
                 className={`flex-1 sm:flex-none px-4 py-2 rounded-lg flex items-center justify-center sm:justify-start gap-2 text-sm sm:text-base ${isDark ? "bg-slate-800 hover:bg-slate-700" : "bg-slate-100 hover:bg-slate-200"} transition-colors`}
               >
                 <Settings className="w-5 h-5" />
@@ -170,9 +170,7 @@ export default function HostDashboard() {
                       {stat.value}
                     </p>
                   </div>
-                  <div className={`${stat.color} flex-shrink-0`}>
-                    {stat.icon}
-                  </div>
+                  <div className={`${stat.color} shrink-0`}>{stat.icon}</div>
                 </div>
               </motion.div>
             ))}

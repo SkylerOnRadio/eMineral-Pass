@@ -16,6 +16,10 @@ function GlobalNavbarComponent() {
   const { user, signOut, isAuthenticated } = useAuth();
   const { effectiveTheme, toggleTheme } = useTheme();
 
+  // Determine if we should hide auth buttons (on homepage when not authenticated)
+  const isHomepage = pathname === "/";
+  const hideAuthButtons = isHomepage && !isAuthenticated;
+
   // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
@@ -24,10 +28,7 @@ function GlobalNavbarComponent() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Hide navbar on auth pages only
-  const isAuthPage = pathname?.startsWith("/auth/");
-
-  if (!mounted || isAuthPage) {
+  if (!mounted) {
     return null;
   }
 
@@ -52,7 +53,7 @@ function GlobalNavbarComponent() {
             className={`text-lg sm:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}
           >
             <Link href="/">
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
                 eMineral
               </span>
               <span
@@ -84,11 +85,11 @@ function GlobalNavbarComponent() {
             {isAuthenticated && user ? (
               <>
                 <span
-                  className={`text-sm truncate max-w-[150px] ${
+                  className={`text-sm truncate max-w-37.5 ${
                     isDark ? "text-slate-300" : "text-slate-600"
                   }`}
                 >
-                  {user.email}
+                  {user.user_metadata?.full_name || user.email}
                 </span>
                 <button
                   onClick={signOut}
@@ -105,24 +106,26 @@ function GlobalNavbarComponent() {
                 </button>
               </>
             ) : (
-              <>
-                <Link
-                  href="/auth/signin"
-                  className={`text-sm lg:text-base font-medium transition-colors ${
-                    isDark
-                      ? "text-slate-300 hover:text-white"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="px-4 lg:px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm lg:text-base hover:shadow-lg hover:shadow-blue-500/30 transition-all"
-                >
-                  Get Started
-                </Link>
-              </>
+              !hideAuthButtons && (
+                <>
+                  <Link
+                    href="/auth/signin"
+                    className={`text-sm lg:text-base font-medium transition-colors ${
+                      isDark
+                        ? "text-slate-300 hover:text-white"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth/signup"
+                    className="px-4 lg:px-6 py-2 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm lg:text-base hover:shadow-lg hover:shadow-blue-500/30 transition-all"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )
             )}
           </div>
 
@@ -188,7 +191,7 @@ function GlobalNavbarComponent() {
                       isDark ? "text-slate-300" : "text-slate-600"
                     }`}
                   >
-                    {user.email}
+                    {user.user_metadata?.full_name || user.email}
                   </div>
                   <button
                     onClick={() => {
@@ -205,26 +208,28 @@ function GlobalNavbarComponent() {
                   </button>
                 </>
               ) : (
-                <>
-                  <Link
-                    href="/auth/signin"
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isDark
-                        ? "text-slate-300 hover:bg-slate-800"
-                        : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm hover:shadow-lg text-center transition-all"
-                  >
-                    Get Started
-                  </Link>
-                </>
+                !hideAuthButtons && (
+                  <>
+                    <Link
+                      href="/auth/signin"
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        isDark
+                          ? "text-slate-300 hover:bg-slate-800"
+                          : "text-slate-600 hover:bg-slate-100"
+                      }`}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/auth/signup"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block w-full px-4 py-2 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm hover:shadow-lg text-center transition-all"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )
               )}
             </div>
           </motion.div>

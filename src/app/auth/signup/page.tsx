@@ -95,7 +95,7 @@ export default function SignUpPage() {
 
   return (
     <div
-      className={`min-h-screen ${isDark ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-gradient-to-br from-white via-slate-50 to-white text-slate-900"}`}
+      className={`min-h-screen pt-20 ${isDark ? "bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-linear-to-br from-white via-slate-50 to-white text-slate-900"}`}
     >
       {/* Background animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -323,7 +323,7 @@ export default function SignUpPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {loading ? (
                   <>

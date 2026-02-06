@@ -141,7 +141,7 @@ export default function SignInPage() {
 
   return (
     <div
-      className={`min-h-screen ${isDark ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-gradient-to-br from-white via-slate-50 to-white text-slate-900"}`}
+      className={`min-h-screen pt-20 ${isDark ? "bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-linear-to-br from-white via-slate-50 to-white text-slate-900"}`}
     >
       {/* Background animation */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -334,7 +334,7 @@ export default function SignInPage() {
                         exit={{ opacity: 0, y: -10 }}
                         className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm flex items-start gap-2"
                       >
-                        <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                        <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
                         {error}
                       </motion.div>
                     )}
@@ -349,7 +349,7 @@ export default function SignInPage() {
                         exit={{ opacity: 0, y: -10 }}
                         className="p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm flex items-start gap-2"
                       >
-                        <CheckCircle2 className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0" />
                         {success}
                       </motion.div>
                     )}
@@ -362,7 +362,7 @@ export default function SignInPage() {
                     disabled={loading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="w-full py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     {loading ? (
                       <>
@@ -490,7 +490,7 @@ export default function SignInPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm flex items-start gap-2"
                   >
-                    <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                    <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
                     {error}
                   </motion.div>
                 )}
@@ -501,7 +501,7 @@ export default function SignInPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm flex items-start gap-2"
                   >
-                    <CheckCircle2 className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0" />
                     {success}
                   </motion.div>
                 )}
@@ -509,7 +509,7 @@ export default function SignInPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {loading ? (
                     <>

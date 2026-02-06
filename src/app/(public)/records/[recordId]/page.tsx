@@ -120,7 +120,7 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
 
   return (
     <div
-      className={`min-h-screen p-4 sm:p-8 transition-colors ${isDark ? "bg-slate-950 text-white" : "bg-white text-slate-900"}`}
+      className={`min-h-screen pt-20 p-4 sm:p-8 transition-colors ${isDark ? "bg-slate-950 text-white" : "bg-white text-slate-900"}`}
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -213,7 +213,9 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
                       >
                         {key.replace(/_/g, " ")}
                       </p>
-                      <p className="font-medium text-white">
+                      <p
+                        className={`font-medium ${isDark ? "text-white" : "text-slate-900"}`}
+                      >
                         {String(value) || "-"}
                       </p>
                     </div>

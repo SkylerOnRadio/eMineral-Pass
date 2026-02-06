@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { RootLayoutProvider } from "./root-provider";
 import { GlobalNavbar } from "@/components/GlobalNavbar";
+import { GlobalFooter } from "@/components/GlobalFooter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "eForm-C | Mineral Transport Authority",
-  description: "Official eForm-C for mineral transport authorization and tracking",
+  description:
+    "Official eForm-C for mineral transport authorization and tracking",
 };
 
 export default function RootLayout({
@@ -32,6 +34,7 @@ export default function RootLayout({
         <RootLayoutProvider>
           <GlobalNavbar />
           {children}
+          <GlobalFooter />
         </RootLayoutProvider>
       </body>
     </html>

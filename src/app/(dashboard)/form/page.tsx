@@ -173,7 +173,7 @@ export default function FormPage() {
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 p-4 md:p-8">
+    <div className="min-h-screen pt-20 px-4 pb-4 md:px-8 md:pb-8 bg-white dark:bg-slate-950">
       <div className="max-w-5xl mx-auto">
         {/* Success State */}
         {generatedRecord && (

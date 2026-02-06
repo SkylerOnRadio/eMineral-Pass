@@ -87,10 +87,10 @@ export default function Home() {
 
   return (
     <div
-      className={`min-h-screen ${isDark ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-gradient-to-b from-white via-slate-50 to-white text-slate-900"}`}
+      className={`min-h-screen ${isDark ? "bg-linear-to-b from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-linear-to-b from-white via-slate-50 to-white text-slate-900"}`}
     >
       <section
-        className={`relative min-h-screen flex items-center justify-center px-6 ${isDark ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950" : "bg-gradient-to-b from-white to-slate-50"}`}
+        className={`relative min-h-screen flex items-center justify-center px-6 ${isDark ? "bg-linear-to-b from-slate-950 via-slate-900 to-slate-950" : "bg-linear-to-b from-white to-slate-50"}`}
       >
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -120,7 +120,7 @@ export default function Home() {
 
           <motion.h1
             variants={itemVariants}
-            className={`text-7xl md:text-8xl font-black mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-blue-600 bg-clip-text text-transparent`}
+            className={`text-7xl md:text-8xl font-black mb-6 bg-linear-to-r from-cyan-400 via-blue-500 to-blue-600 bg-clip-text text-transparent`}
           >
             eMineral Pass
           </motion.h1>
@@ -140,7 +140,7 @@ export default function Home() {
             >
               <Link
                 href="/auth/signup"
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
               >
                 Get ePass <ArrowRight className="w-5 h-5" />
               </Link>
@@ -159,7 +159,7 @@ export default function Home() {
             >
               <Link
                 href="/dashboard/user"
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
               >
                 Go to Dashboard <ArrowRight className="w-5 h-5" />
               </Link>
@@ -214,7 +214,7 @@ export default function Home() {
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                className={`group ${isDark ? "bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700" : "bg-white border-slate-200"} border rounded-xl p-8 hover:border-cyan-400 hover:shadow-lg transition-all`}
+                className={`group ${isDark ? "bg-linear-to-br from-slate-800 to-slate-900 border-slate-700" : "bg-white border-slate-200"} border rounded-xl p-8 hover:border-cyan-400 hover:shadow-lg transition-all`}
               >
                 <div
                   className={`w-14 h-14 ${f.color} rounded-lg flex items-center justify-center mb-6 text-white`}
@@ -258,7 +258,7 @@ export default function Home() {
                   },
                 ].map((b, i) => (
                   <div key={i} className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <div className="w-10 h-10 bg-linear-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
                       {b.icon}
                     </div>
                     <p className="text-lg font-semibold">{b.text}</p>
@@ -317,7 +317,7 @@ export default function Home() {
               </ul>
               <Link
                 href="/auth/signup?role=host"
-                className="w-full inline-block py-3 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg font-semibold text-white hover:shadow-lg"
+                className="w-full inline-block py-3 bg-linear-to-r from-blue-600 to-cyan-600 rounded-lg font-semibold text-white hover:shadow-lg"
               >
                 Access Portal
               </Link>
@@ -342,7 +342,7 @@ export default function Home() {
               </ul>
               <Link
                 href="/auth/signup?role=user"
-                className="w-full inline-block py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-semibold text-white hover:shadow-lg"
+                className="w-full inline-block py-3 bg-linear-to-r from-purple-600 to-pink-600 rounded-lg font-semibold text-white hover:shadow-lg"
               >
                 Get Started
               </Link>
@@ -350,17 +350,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <footer
-        className={`${isDark ? "border-slate-800 text-slate-400" : "border-slate-300 text-slate-600"} border-t py-12 px-6`}
-      >
-        <div className="max-w-7xl mx-auto text-center text-sm">
-          <p>
-            &copy; 2026 eMineral Pass. Digital pass system under Uttar Pradesh
-            Minerals Rules, 2018.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
