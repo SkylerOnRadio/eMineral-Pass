@@ -62,7 +62,15 @@ export default function SignUpPage() {
     setSuccess("");
 
     try {
-      await signUp(email, password, fullName);
+      const result = await signUp(email, password, fullName);
+
+      if (!result.session) {
+        setSuccess("Account created! Please verify your email to continue.");
+        setTimeout(() => {
+          router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+        }, 1200);
+        return;
+      }
 
       setSuccess(
         `Account created successfully! Redirecting to your ${role === "host" ? "License Portal" : "Dashboard"}...`,

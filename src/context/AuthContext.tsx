@@ -17,7 +17,11 @@ interface AuthContextType {
   isAuthenticated: boolean;
   signOut: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+  ) => Promise<{ session: Session | null; user: User | null }>;
   error: string | null;
 }
 
@@ -190,6 +194,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(data.session);
         setUser(data.session.user);
       }
+
+      return {
+        session: data.session ?? null,
+        user: data.user ?? null,
+      };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sign up failed";
       setError(message);
