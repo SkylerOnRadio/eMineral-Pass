@@ -47,6 +47,60 @@ export default function UserDashboard() {
 
   const isDark = effectiveTheme === "dark";
 
+  const formatDateInput = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const setRangeDays = (days: number) => {
+    const today = new Date();
+    const start = new Date();
+    start.setDate(today.getDate() - (days - 1));
+    setDateFrom(formatDateInput(start));
+    setDateTo(formatDateInput(today));
+  };
+
+  const setThisMonth = () => {
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    setDateFrom(formatDateInput(start));
+    setDateTo(formatDateInput(today));
+  };
+
+  const handleDateFromChange = (value: string) => {
+    setDateFrom(value);
+    if (dateTo && value && new Date(value) > new Date(dateTo)) {
+      setDateTo(value);
+    }
+  };
+
+  const handleDateToChange = (value: string) => {
+    setDateTo(value);
+    if (dateFrom && value && new Date(value) < new Date(dateFrom)) {
+      setDateFrom(value);
+    }
+  };
+
+  const getFormValue = (
+    formData: Record<string, any>,
+    keys: string[],
+    fallback = "-",
+  ) => {
+    for (const key of keys) {
+      const value = formData[key];
+      if (
+        value !== undefined &&
+        value !== null &&
+        String(value).trim() !== ""
+      ) {
+        return String(value);
+      }
+    }
+    return fallback;
+  };
+
   // Fetch user's records
   useEffect(() => {
     const fetchRecords = async () => {
@@ -264,7 +318,7 @@ export default function UserDashboard() {
             <input
               type="date"
               value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
+              onChange={(e) => handleDateFromChange(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-slate-300"}`}
             />
           </div>
@@ -277,7 +331,7 @@ export default function UserDashboard() {
             <input
               type="date"
               value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
+              onChange={(e) => handleDateToChange(e.target.value)}
               className={`w-full px-3 py-2 rounded-lg border ${isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-white border-slate-300"}`}
             />
           </div>
@@ -290,6 +344,35 @@ export default function UserDashboard() {
           >
             Clear Dates
           </button>
+        </div>
+
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          <span
+            className={`text-xs font-semibold uppercase tracking-wide ${isDark ? "text-slate-400" : "text-slate-600"}`}
+          >
+            Quick Range
+          </span>
+          {[
+            { label: "Today", action: () => setRangeDays(1) },
+            { label: "Last 7 Days", action: () => setRangeDays(7) },
+            { label: "Last 30 Days", action: () => setRangeDays(30) },
+            { label: "This Month", action: setThisMonth },
+          ].map((preset) => (
+            <button
+              key={preset.label}
+              onClick={preset.action}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${isDark ? "bg-slate-800 text-slate-200 hover:bg-slate-700" : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"}`}
+            >
+              {preset.label}
+            </button>
+          ))}
+          {(dateFrom || dateTo) && (
+            <span
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold ${isDark ? "bg-cyan-500/20 text-cyan-300" : "bg-cyan-100 text-cyan-700"}`}
+            >
+              Range: {dateFrom || "..."} to {dateTo || "..."}
+            </span>
+          )}
         </div>
 
         {/* Filter Buttons */}
@@ -358,10 +441,30 @@ export default function UserDashboard() {
           >
             {filteredRecords.map((record) => {
               const formData = record.form_data || {};
-              const passNumber = formData.serialNumber || record.id.slice(0, 8);
-              const mineral = formData.mineralName || "N/A";
-              const quantity = formData.quantityInTonnes || "0";
-              const destination = formData.nameOfConsignee || "Unknown";
+              const passNumber = getFormValue(
+                formData,
+                ["eform_c_no", "serial_number", "serialNumber"],
+                record.id.slice(0, 8),
+              );
+              const mineral = getFormValue(
+                formData,
+                ["name_of_mineral", "mineral_name", "mineralName"],
+                "N/A",
+              );
+              const quantity = getFormValue(
+                formData,
+                ["quantity_transported", "quantityInTonnes"],
+                "0",
+              );
+              const destination = getFormValue(
+                formData,
+                [
+                  "destination_delivery_address",
+                  "destination_district",
+                  "nameOfConsignee",
+                ],
+                "Unknown",
+              );
 
               return (
                 <motion.div

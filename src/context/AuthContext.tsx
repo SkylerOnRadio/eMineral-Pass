@@ -41,6 +41,20 @@ function clearCorruptedAuthTokens() {
   }
 }
 
+function setAuthHint(isAuthed: boolean) {
+  if (typeof window === "undefined") return;
+
+  try {
+    if (isAuthed) {
+      localStorage.setItem("emineral_auth_hint", "1");
+    } else {
+      localStorage.removeItem("emineral_auth_hint");
+    }
+  } catch (err) {
+    console.warn("Failed to update auth hint:", err);
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -56,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } = await supabase.auth.getSession();
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
+        setAuthHint(!!currentSession?.user);
       } catch (err) {
         // Handle invalid refresh token error gracefully
         if (
@@ -66,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           clearCorruptedAuthTokens();
           setSession(null);
           setUser(null);
+          setAuthHint(false);
         } else {
           console.error("Session check failed:", err);
           setError("Failed to check session");
@@ -84,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setIsLoading(false);
+      setAuthHint(!!currentSession?.user);
 
       // Handle token refresh
       if (event === "TOKEN_REFRESHED") {
@@ -94,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (event === "SIGNED_OUT" || event === "USER_DELETED") {
         setSession(null);
         setUser(null);
+        setAuthHint(false);
       }
     });
 
@@ -121,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           clearCorruptedAuthTokens();
           setSession(null);
           setUser(null);
+          setAuthHint(false);
         }
       }
     }, 60000); // Check every 60 seconds
@@ -186,10 +205,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Ensure state is cleared
       setSession(null);
       setUser(null);
+      setAuthHint(false);
     } catch (err) {
       // Even if signOut fails, clear local state to prevent stuck login
       setSession(null);
       setUser(null);
+      setAuthHint(false);
 
       const message = err instanceof Error ? err.message : "Sign out failed";
 
