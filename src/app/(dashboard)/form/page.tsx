@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/Card";
 import { Input, TextArea, Select } from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import { createRecord } from "@/lib/records.server";
 import { validateFormSubmission } from "@/lib/validation";
 import { FormSubmissionData } from "@/types";
@@ -28,14 +27,11 @@ import {
 
 export default function FormPage() {
   const { user } = useAuth();
-  const { effectiveTheme } = useTheme();
   const [formData, setFormData] = useState<FormSubmissionData>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [generatedRecord, setGeneratedRecord] = useState<any>(null);
-
-  const isDark = effectiveTheme === "dark";
 
   // Memoize form fields to prevent recalculation
   const mainFormFields = useMemo(() => getMainFormFields(), []);
@@ -124,7 +120,7 @@ export default function FormPage() {
             <label className="block text-sm font-medium text-foreground">
               {field.label}
             </label>
-            <div className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-sm text-slate-600 dark:text-slate-400 font-mono">
+            <div className="w-full px-3 py-2 bg-muted/70 border border-border/70 rounded-md text-sm text-muted-foreground font-mono">
               {formData[field.name] || "(Auto-generated upon submission)"}
             </div>
           </div>
@@ -173,22 +169,22 @@ export default function FormPage() {
   );
 
   return (
-    <div className="min-h-screen pt-20 px-4 pb-4 md:px-8 md:pb-8 bg-white dark:bg-slate-950">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen pt-20 pb-10 px-4 sm:px-6 lg:px-10 bg-background bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(59,130,246,0.18),transparent)] dark:bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(14,116,144,0.22),transparent)]">
+      <div className="max-w-6xl mx-auto">
         {/* Success State */}
         {generatedRecord && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 p-6 bg-green-50 dark:bg-green-950/20 border-2 border-green-500 rounded-lg"
+            className="mb-6 p-6 sm:p-8 bg-emerald-50/90 dark:bg-emerald-950/30 border border-emerald-300/70 dark:border-emerald-800/70 rounded-2xl shadow-[0_16px_40px_rgba(16,185,129,0.15)]"
           >
             <div className="flex items-start gap-4 mb-4">
               <div className="text-4xl">✓</div>
               <div>
-                <h2 className="text-xl font-bold text-green-700 dark:text-green-400 mb-1">
+                <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-1">
                   eForm-C Generated Successfully
                 </h2>
-                <p className="text-sm text-green-600 dark:text-green-500">
+                <p className="text-sm text-emerald-600 dark:text-emerald-400">
                   Your pass for transportation of minor mineral has been
                   created.
                 </p>
@@ -197,9 +193,9 @@ export default function FormPage() {
 
             <div className="space-y-4">
               {/* Record Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white dark:bg-slate-900 border border-green-200 dark:border-green-900 rounded">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5 bg-white/90 dark:bg-slate-900/70 border border-emerald-200/70 dark:border-emerald-900/60 rounded-xl">
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">
                     Record ID
                   </p>
                   <p className="font-mono text-sm font-semibold break-all">
@@ -207,7 +203,7 @@ export default function FormPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">
                     eForm-C No.
                   </p>
                   <p className="font-mono text-sm font-semibold">
@@ -217,7 +213,7 @@ export default function FormPage() {
                 </div>
                 {generatedRecord.eform_c_generated_on && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">
                       Generated On
                     </p>
                     <p className="font-mono text-sm">
@@ -227,7 +223,7 @@ export default function FormPage() {
                 )}
                 {generatedRecord.eform_c_valid_upto && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1">
                       Valid Upto
                     </p>
                     <p className="font-mono text-sm">
@@ -240,14 +236,14 @@ export default function FormPage() {
               {/* QR Code and Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {generatedRecord.qr_code_url && (
-                  <div className="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded">
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 font-semibold">
+                  <div className="flex flex-col items-center justify-center p-4 bg-white/90 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-700 rounded-xl">
+                    <p className="text-xs text-muted-foreground mb-3 font-semibold">
                       QR Code
                     </p>
                     <img
                       src={generatedRecord.qr_code_url}
                       alt="eForm-C QR Code"
-                      className="w-40 h-40 sm:w-48 sm:h-48 p-2 border border-slate-300 dark:border-slate-600 rounded"
+                      className="w-40 h-40 sm:w-48 sm:h-48 p-2 border border-slate-300/80 dark:border-slate-600 rounded-xl bg-white"
                     />
                   </div>
                 )}
@@ -279,10 +275,7 @@ export default function FormPage() {
                     </a>
                   )}
 
-                  <Button
-                    onClick={handleCreateNewEntry}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  >
+                  <Button onClick={handleCreateNewEntry} className="w-full">
                     ➕ Create New Entry
                   </Button>
                 </div>
@@ -293,23 +286,23 @@ export default function FormPage() {
 
         {/* Form */}
         {!generatedRecord && (
-          <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm">
+          <div className="bg-card border border-border/70 rounded-2xl shadow-[0_20px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_20px_60px_rgba(2,6,23,0.55)] overflow-hidden">
             {/* Government Form Header */}
-            <div className="border-b border-slate-300 dark:border-slate-700 p-6 md:p-8 text-center bg-slate-50 dark:bg-slate-800">
-              <p className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 tracking-wide mb-2">
+            <div className="border-b border-border/70 p-6 md:p-8 text-center bg-muted/60 dark:bg-muted/30">
+              <p className="text-xs md:text-sm font-semibold text-foreground tracking-wide mb-2">
                 {EFORM_C_HEADER.line1}
               </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+              <p className="text-xs text-muted-foreground mb-4">
                 {EFORM_C_HEADER.line2}
               </p>
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
+              <p className="text-sm font-semibold text-foreground mb-1">
                 {EFORM_C_HEADER.line3}
               </p>
-              <hr className="my-4 border-slate-300 dark:border-slate-600" />
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              <hr className="my-4 border-border/70" />
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
                 {EFORM_C_HEADER.title}
               </h1>
-              <p className="text-xs md:text-sm text-slate-700 dark:text-slate-300 font-semibold">
+              <p className="text-xs md:text-sm text-muted-foreground font-semibold">
                 {EFORM_C_HEADER.subtitle}
               </p>
             </div>
@@ -320,13 +313,13 @@ export default function FormPage() {
                 {/* Main Form Fields */}
                 <div className="space-y-6">
                   {/* Render main fields in 2-column grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {mainFormFields.map((field, idx) => (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    {mainFormFields.map((field) => (
                       <div
                         key={field.id}
                         className={
                           field.name === "licensee_details_address"
-                            ? "md:col-span-2"
+                            ? "lg:col-span-2"
                             : ""
                         }
                       >
@@ -337,18 +330,18 @@ export default function FormPage() {
                 </div>
 
                 {/* Vehicle Details Section */}
-                <div className="pt-6 border-t-2 border-slate-300 dark:border-slate-600">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 pb-2 border-b-2 border-blue-500">
+                <div className="pt-6 border-t border-border/70">
+                  <h2 className="text-lg font-bold text-foreground mb-6 pb-2 border-b-2 border-primary">
                     {VEHICLE_SECTION_HEADER}
                   </h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     {vehicleFields.map((field) => (
                       <div
                         key={field.id}
                         className={
                           field.name === "mobile_number_of_driver"
-                            ? "md:col-span-2 md:w-1/2"
+                            ? "lg:col-span-2 lg:w-1/2"
                             : ""
                         }
                       >
@@ -359,12 +352,12 @@ export default function FormPage() {
                 </div>
 
                 {/* Submit Button */}
-                <div className="pt-6 border-t border-slate-300 dark:border-slate-700">
+                <div className="pt-6 border-t border-border/70">
                   <Button
                     type="submit"
                     isLoading={isSubmitting}
                     disabled={isSubmitting}
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base"
+                    className="w-full h-12 sm:h-14 font-semibold text-base sm:text-lg"
                   >
                     {isSubmitting
                       ? "Generating eForm-C..."

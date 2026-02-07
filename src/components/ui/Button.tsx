@@ -1,18 +1,18 @@
-'use client'
+"use client";
 
-import { ReactNode } from 'react'
-import { cn } from '@/lib/utils'
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost'
-  size?: 'sm' | 'md' | 'lg'
-  children: ReactNode
-  isLoading?: boolean
+  variant?: "default" | "secondary" | "destructive" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
+  children: ReactNode;
+  isLoading?: boolean;
 }
 
 export function Button({
-  variant = 'default',
-  size = 'md',
+  variant = "default",
+  size = "md",
   className,
   isLoading = false,
   disabled,
@@ -20,34 +20,50 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variantClasses = {
-    default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-    destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-    outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-    ghost: 'hover:bg-accent hover:text-accent-foreground',
-  }
+    default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+    secondary:
+      "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/60",
+    destructive:
+      "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+    outline:
+      "border border-input/70 bg-background hover:bg-accent hover:text-accent-foreground",
+    ghost: "hover:bg-accent hover:text-accent-foreground",
+  };
 
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm rounded-md',
-    md: 'px-4 py-2 text-sm rounded-lg',
-    lg: 'px-6 py-3 text-base rounded-lg',
-  }
+    sm: "px-3 py-1.5 text-sm rounded-md",
+    md: "px-4 py-2 text-sm rounded-lg",
+    lg: "px-6 py-3 text-base rounded-lg",
+  };
 
   return (
     <button
       disabled={disabled || isLoading}
       className={cn(
-        'inline-flex items-center justify-center font-medium transition-all duration-200',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
+        "inline-flex items-center justify-center font-medium transition-all duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
         variantClasses[variant],
         sizeClasses[size],
-        className
+        className,
       )}
       {...props}
     >
       {isLoading && (
-        <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <svg
+          className="animate-spin -ml-1 mr-2 h-4 w-4"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
           <path
             className="opacity-75"
             fill="currentColor"
@@ -57,5 +73,5 @@ export function Button({
       )}
       {children}
     </button>
-  )
+  );
 }

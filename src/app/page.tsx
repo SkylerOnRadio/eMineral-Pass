@@ -22,25 +22,18 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const [authHint, setAuthHint] = useState(false);
   const { effectiveTheme } = useTheme();
-  const { isAuthenticated, user, isLoading } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const hint = localStorage.getItem("emineral_auth_hint") === "1";
-      setAuthHint(hint);
-    } catch {
-      setAuthHint(false);
-    }
   }, []);
 
   if (!mounted) return null;
 
   const isDark = effectiveTheme === "dark";
-  const showDashboardCta = (isAuthenticated && user) || (isLoading && authHint);
-  const showAuthCta = !showDashboardCta && !isLoading;
+  const showDashboardCta = isAuthenticated && user;
+  const showAuthCta = !isAuthenticated;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -169,7 +162,6 @@ export default function Home() {
               <Link
                 href="/dashboard/user"
                 className="px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
-                aria-disabled={isLoading}
               >
                 Go to Dashboard <ArrowRight className="w-5 h-5" />
               </Link>

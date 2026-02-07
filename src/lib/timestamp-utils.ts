@@ -1,10 +1,10 @@
 /**
  * Timestamp utilities for auto-generated form fields
- * 
+ *
  * Handles server-side generation of:
  * - Generated On: Current server timestamp
  * - Valid Upto: Generated On + 24 hours
- * 
+ *
  * Format: DD-MM-YYYY HH:MM:SS AM/PM
  */
 
@@ -15,26 +15,26 @@
 export function formatTimestamp(date: Date): string {
   // Ensure we're working with a Date object
   if (!(date instanceof Date) || isNaN(date.getTime())) {
-    return ''
+    return "";
   }
 
   // Extract date components
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear()
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
 
   // Extract time components
-  let hours = date.getHours()
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  const seconds = String(date.getSeconds()).padStart(2, '0')
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
 
   // Convert to 12-hour format
-  const period = hours >= 12 ? 'PM' : 'AM'
-  hours = hours % 12 || 12 // Convert 0 to 12 for midnight
+  const period = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12; // Convert 0 to 12 for midnight
 
-  const formattedHours = String(hours).padStart(2, '0')
+  const formattedHours = String(hours).padStart(2, "0");
 
-  return `${day}-${month}-${year} ${formattedHours}:${minutes}:${seconds} ${period}`
+  return `${day}-${month}-${year} ${formattedHours}:${minutes}:${seconds} ${period}`;
 }
 
 /**
@@ -42,24 +42,66 @@ export function formatTimestamp(date: Date): string {
  * Used when retrieving timestamps from database
  */
 export function parseTimestamp(timestamp: string): Date {
-  if (!timestamp) return new Date()
+  if (!timestamp) return new Date();
 
   try {
-    const [datePart, timePart, period] = timestamp.split(' ')
-    const [day, month, year] = datePart.split('-').map(Number)
-    let [hours, minutes, seconds] = timePart.split(':').map(Number)
+    const [datePart, timePart, period] = timestamp.split(" ");
+    const [day, month, year] = datePart.split("-").map(Number);
+    let [hours, minutes, seconds] = timePart.split(":").map(Number);
 
     // Convert from 12-hour to 24-hour format
-    if (period === 'PM' && hours !== 12) {
-      hours += 12
-    } else if (period === 'AM' && hours === 12) {
-      hours = 0
+    if (period === "PM" && hours !== 12) {
+      hours += 12;
+    } else if (period === "AM" && hours === 12) {
+      hours = 0;
     }
 
-    return new Date(year, month - 1, day, hours, minutes, seconds)
+    return new Date(year, month - 1, day, hours, minutes, seconds);
   } catch (error) {
-    console.error('Error parsing timestamp:', timestamp, error)
-    return new Date()
+    console.error("Error parsing timestamp:", timestamp, error);
+    return new Date();
+  }
+}
+
+/**
+ * Parse DD-MM-YYYY HH:MM(:SS)? AM/PM format back to Date
+ * Returns null when parsing fails
+ */
+export function parseTimestampFlexible(timestamp: string): Date | null {
+  if (!timestamp) return null;
+
+  const normalized = timestamp.replace(/\s+/g, " ").trim();
+  const regex = /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}(:\d{2})? (AM|PM)$/;
+  if (!regex.test(normalized)) return null;
+
+  try {
+    const [datePart, timePart, period] = normalized.split(" ");
+    const [day, month, year] = datePart.split("-").map(Number);
+    const timeSegments = timePart.split(":").map(Number);
+    const [hoursRaw, minutes, seconds = 0] = timeSegments;
+
+    if (
+      [day, month, year, hoursRaw, minutes, seconds].some((n) =>
+        Number.isNaN(n),
+      )
+    ) {
+      return null;
+    }
+
+    let hours = hoursRaw;
+    if (period === "PM" && hours !== 12) {
+      hours += 12;
+    } else if (period === "AM" && hours === 12) {
+      hours = 0;
+    }
+
+    const parsed = new Date(year, month - 1, day, hours, minutes, seconds);
+    if (Number.isNaN(parsed.getTime())) return null;
+
+    return parsed;
+  } catch (error) {
+    console.error("Error parsing timestamp:", timestamp, error);
+    return null;
   }
 }
 
@@ -68,17 +110,19 @@ export function parseTimestamp(timestamp: string): Date {
  * Should only be called in server actions or API routes
  */
 export function generateSubmissionTimestamp(): string {
-  return formatTimestamp(new Date())
+  return formatTimestamp(new Date());
 }
 
 /**
  * Calculate validity expiration (Generated On + 24 hours)
  * Takes the generated_on timestamp and adds 24 hours
  */
-export function calculateValidityExpiration(generatedOnTimestamp: string): string {
-  const generatedDate = parseTimestamp(generatedOnTimestamp)
-  const expiryDate = new Date(generatedDate.getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
-  return formatTimestamp(expiryDate)
+export function calculateValidityExpiration(
+  generatedOnTimestamp: string,
+): string {
+  const generatedDate = parseTimestamp(generatedOnTimestamp);
+  const expiryDate = new Date(generatedDate.getTime() + 24 * 60 * 60 * 1000); // Add 24 hours
+  return formatTimestamp(expiryDate);
 }
 
 /**
@@ -87,12 +131,12 @@ export function calculateValidityExpiration(generatedOnTimestamp: string): strin
  */
 export function isFormStillValid(validUpto: string): boolean {
   try {
-    const expiryDate = parseTimestamp(validUpto)
-    const currentDate = new Date()
-    return currentDate <= expiryDate
+    const expiryDate = parseTimestamp(validUpto);
+    const currentDate = new Date();
+    return currentDate <= expiryDate;
   } catch (error) {
-    console.error('Error checking form validity:', error)
-    return false
+    console.error("Error checking form validity:", error);
+    return false;
   }
 }
 
@@ -101,24 +145,24 @@ export function isFormStillValid(validUpto: string): boolean {
  */
 export function getRemainingValidityTime(validUpto: string): string {
   try {
-    const expiryDate = parseTimestamp(validUpto)
-    const currentDate = new Date()
+    const expiryDate = parseTimestamp(validUpto);
+    const currentDate = new Date();
 
     if (currentDate > expiryDate) {
-      return 'Expired'
+      return "Expired";
     }
 
-    const diffMs = expiryDate.getTime() - currentDate.getTime()
-    const hours = Math.floor(diffMs / (1000 * 60 * 60))
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+    const diffMs = expiryDate.getTime() - currentDate.getTime();
+    const hours = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
     if (hours > 0) {
-      return `${hours}h ${minutes}m remaining`
+      return `${hours}h ${minutes}m remaining`;
     }
-    return `${minutes}m remaining`
+    return `${minutes}m remaining`;
   } catch (error) {
-    console.error('Error calculating remaining time:', error)
-    return 'Invalid'
+    console.error("Error calculating remaining time:", error);
+    return "Invalid";
   }
 }
 
@@ -126,15 +170,15 @@ export function getRemainingValidityTime(validUpto: string): string {
  * Validate timestamp format
  */
 export function isValidTimestampFormat(timestamp: string): boolean {
-  if (!timestamp) return false
+  if (!timestamp) return false;
 
-  const regex = /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2} (AM|PM)$/
-  return regex.test(timestamp)
+  const regex = /^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2} (AM|PM)$/;
+  return regex.test(timestamp);
 }
 
 /**
  * Get status badge based on validity
  */
-export function getStatusBadge(validUpto: string): 'active' | 'expired' {
-  return isFormStillValid(validUpto) ? 'active' : 'expired'
+export function getStatusBadge(validUpto: string): "active" | "expired" {
+  return isFormStillValid(validUpto) ? "active" : "expired";
 }

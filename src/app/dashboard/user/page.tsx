@@ -18,6 +18,7 @@ import {
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { parseTimestampFlexible } from "@/lib/timestamp-utils";
 
 interface Record {
   id: string;
@@ -44,8 +45,41 @@ export default function UserDashboard() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+  const [now, setNow] = useState(() => new Date());
 
   const isDark = effectiveTheme === "dark";
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getValidUptoDate = (record: Record) => {
+    const formValidUpto = record.form_data?.eform_c_valid_upto;
+    if (typeof formValidUpto === "string" && formValidUpto.trim()) {
+      const parsedForm = parseTimestampFlexible(formValidUpto);
+      if (parsedForm) return parsedForm;
+    }
+
+    if (record.valid_upto) {
+      const parsedDb = new Date(record.valid_upto);
+      if (!Number.isNaN(parsedDb.getTime())) return parsedDb;
+    }
+
+    return null;
+  };
+
+  const getEffectiveStatus = (record: Record) => {
+    if (record.status === "archived") return "archived";
+    if (!record.valid_upto && !record.form_data?.eform_c_valid_upto) {
+      return record.status;
+    }
+
+    const validUntil = getValidUptoDate(record);
+    if (!validUntil) return "expired";
+
+    return now > validUntil ? "expired" : "active";
+  };
 
   const formatDateInput = (date: Date) => {
     const year = date.getFullYear();
@@ -128,7 +162,8 @@ export default function UserDashboard() {
 
   // Filter records based on selected status
   const filteredRecords = records.filter((record) => {
-    if (filterStatus !== "All" && record.status !== filterStatus) {
+    const effectiveStatus = getEffectiveStatus(record);
+    if (filterStatus !== "All" && effectiveStatus !== filterStatus) {
       return false;
     }
 
@@ -148,7 +183,9 @@ export default function UserDashboard() {
   });
 
   // Calculate stats
-  const activeRecords = records.filter((r) => r.status === "active").length;
+  const activeRecords = records.filter(
+    (record) => getEffectiveStatus(record) === "active",
+  ).length;
   const thisMonthRecords = records.filter((r) => {
     const recordDate = new Date(r.created_at);
     const now = new Date();
@@ -465,6 +502,8 @@ export default function UserDashboard() {
                 ],
                 "Unknown",
               );
+              const effectiveStatus = getEffectiveStatus(record);
+              const validUptoDate = getValidUptoDate(record);
 
               return (
                 <motion.div
@@ -509,15 +548,15 @@ export default function UserDashboard() {
                       </p>
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          record.status === "active"
+                          effectiveStatus === "active"
                             ? "bg-green-500/20 text-green-400"
-                            : record.status === "expired"
+                            : effectiveStatus === "expired"
                               ? "bg-red-500/20 text-red-400"
                               : "bg-gray-500/20 text-gray-400"
                         }`}
                       >
-                        {record.status.charAt(0).toUpperCase() +
-                          record.status.slice(1)}
+                        {effectiveStatus.charAt(0).toUpperCase() +
+                          effectiveStatus.slice(1)}
                       </span>
                     </div>
 
@@ -529,7 +568,7 @@ export default function UserDashboard() {
                         VALID UPTO
                       </p>
                       <p className="font-medium">
-                        {new Date(record.valid_upto).toLocaleDateString()}
+                        {validUptoDate ? validUptoDate.toLocaleString() : "-"}
                       </p>
                     </div>
 

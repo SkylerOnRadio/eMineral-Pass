@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, LogOut, Menu, X } from "lucide-react";
@@ -13,6 +13,7 @@ function GlobalNavbarComponent() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut, isAuthenticated } = useAuth();
   const { effectiveTheme, toggleTheme } = useTheme();
 
@@ -96,7 +97,7 @@ function GlobalNavbarComponent() {
                     try {
                       await signOut();
                     } finally {
-                      window.location.href = "/";
+                      router.replace("/");
                     }
                   }}
                   className={`p-2.5 rounded-lg transition-colors ${
@@ -205,7 +206,7 @@ function GlobalNavbarComponent() {
                         await signOut();
                       } finally {
                         setIsMenuOpen(false);
-                        window.location.href = "/";
+                        router.replace("/");
                       }
                     }}
                     className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
