@@ -5,8 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { MailCheck, ArrowLeft } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { Suspense } from 'react';
 
-export default function PendingRequest() {
+function PendingRequestContent() {
 	const searchParams = useSearchParams();
 	const { effectiveTheme } = useTheme();
 	const email = searchParams.get('email');
@@ -71,5 +72,18 @@ export default function PendingRequest() {
 				</motion.div>
 			</div>
 		</div>
+	);
+}
+
+export default function PendingRequest() {
+	const searchParams = useSearchParams();
+	const { effectiveTheme } = useTheme();
+	const email = searchParams.get('email');
+	const isDark = effectiveTheme === 'dark';
+
+	return (
+		<Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+			<PendingRequestContent />
+		</Suspense>
 	);
 }
