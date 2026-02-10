@@ -113,7 +113,7 @@ export default function HostDashboardUI() {
 	};
 
 	const getFormValue = (
-		formData: Record<string, any>,
+		formData: { [key: string]: any },
 		keys: string[],
 		fallback = '-',
 	) => {
